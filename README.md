@@ -23,8 +23,22 @@ It is designed for industrial defect detection scenarios where:
 
 ---
 
+## Banchmark - Pass rate for each defect type
+| type    | number of sample | pass rate of Normal |
+|---------|------------------|----------------------|
+| Normal  | 5120             | 0.94                 |
+| type 5  | 45               | 0.84                 |
+| type 7  | 67               | 0.93                 |
+| type 8  | 18               | 0.73                 |
+| type 10 | 22               | 0.71                 |
+| type 1  | 71               | 0.11                 |
+| type 2  | 46               | 0.12                 |
+| type 3  | 225              | 0.38                 |
+| type 4  | 85               | 0.51                 |
+| type 6  | 1237             | 0.22                 |
+| type 9  | 27               | 0.53                 |
 
-
+---
 ## 📦 Installation
 
 ```bash
@@ -32,74 +46,6 @@ pip install torch torchvision scikit-learn pillow tqdm numpy
 ```
 
 ---
-
-## 🧩 Method Overview
-
-### 1. 9-Grid Splitting
-
-Each image is split into 9 overlapping patches:
-
-```
-Original: 7000 × 7000
-Patch size: 3550 × 3550
-Stride: 1725
-```
-
----
-
-### 2. Training Strategy
-
-- Train Autoencoder using **only normal images**
-- Model learns to reconstruct normal patterns
-- Defects → higher reconstruction error
-
----
-
-### 3. Inference Strategy
-
-1. Split image into 9 patches  
-2. Compute reconstruction error per patch  
-3. Compare with threshold:
-
-```
-score > threshold → defect
-```
-
----
-
-## 🏋️ Training
-
-```bash
-python train.py \
-  --data_dir data \
-  --patch_size 3550 \
-  --input_size 256 \
-  --batch_size 8 \
-  --epochs 30 \
-  --lr 1e-3 \
-  --save_dir checkpoints
-```
-
----
-
-## 📌 Training Notes
-
-- Training only uses:
-  ```
-  data/train/normal/
-  ```
-- Validation uses:
-  ```
-  data/val/normal/
-  data/val/defect/
-  ```
-- Automatically computes:
-  - ROC-AUC
-  - PR-AUC
-  - Best threshold (F1-based)
-
----
-
 ## 💾 Checkpoints
 
 ```
@@ -138,6 +84,71 @@ python inference.py \
   --input path/to/folder \
   
 ```
+
+## 🧩 Method Overview
+
+### 1. 9-Grid Splitting
+
+Each image is split into 9 overlapping patches:
+
+```
+Original: 7000 × 7000
+Patch size: 3550 × 3550
+Stride: 1725
+```
+
+---
+
+### 2. Training Strategy
+
+- Train Autoencoder using **only normal images**
+- Model learns to reconstruct normal patterns
+- Defects → higher reconstruction error
+
+---
+
+### 3. Inference Strategy
+
+1. Split image into 9 patches  
+2. Compute reconstruction error per patch  
+3. Compare with threshold:
+
+```
+score > threshold → defect
+```
+
+---
+
+## 🏋️ Training
+- If you with to train AE model from scratch，you can follow this instruction
+```bash
+python train.py \
+  --data_dir data \
+  --patch_size 3550 \
+  --input_size 256 \
+  --batch_size 8 \
+  --epochs 30 \
+  --lr 1e-3 \
+  --save_dir checkpoints
+```
+
+---
+
+## 📌 Training Notes
+
+- Training only uses:
+  ```
+  data/train/normal/
+  ```
+- Validation uses:
+  ```
+  data/val/normal/
+  data/val/defect/
+  ```
+- Automatically computes:
+  - ROC-AUC
+  - PR-AUC
+  - Best threshold (F1-based)
 
 
 ---
